@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Krishi Mitra - AI-Powered Crop Recommendation System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <style>
+        :root {
+            --primary: #2e7d32;
+            --secondary: #7cb342;
+            --accent: #ffa000;
+            --light: #f1f8e9;
+            --dark: #1b5e20;
+            --warning: #ff9800;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            padding-top: 90px;
+        }
+        
+        .navbar {
+            background-color: var(--primary);
+            border-radius: 10px;
+            margin: 0 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .language-selector {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1500937386664-56d1dfef3854?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            border-radius: 15px;
+            margin: 20px 15px;
+            position: relative;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .section-title {
+            position: relative;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--secondary);
+        }
+        
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+        }
+        
+        .card-header {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border-color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--dark);
+            border-color: var(--dark);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+        
+        .crop-card {
+            border-left: 5px solid var(--secondary);
+        }
+        
+        .profit-badge {
+            background-color: var(--accent);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 50px 0 20px;
+            margin-top: 40px;
+        }
+        
+        .input-group-text {
+            background-color: var(--light);
+        }
+        
+        .voice-btn {
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .voice-btn:hover {
+            background-color: var(--secondary);
+            color: white;
+        }
+        
+        .tab-content {
+            padding: 25px;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 15px 15px;
+        }
+        
+        .weather-card {
+            background: linear-gradient(120deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        
+        .market-trend {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .community-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+        }
+        
+        #map {
+            height: 300px;
+            border-radius: 15px;
+            z-index: 1;
+        }
+        
+        .recommendation-tag {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            background-color: var(--light);
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .pricing-card {
+            transition: all 0.3s;
+        }
+        
+        .pricing-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .pricing-card .card-header {
+            background: linear-gradient(120deg, var(--primary), var(--secondary));
+        }
+        
+        /* New styles */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .fixed-navbar {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            z-index: 1030;
+        }
+        
+        .loading-spinner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+            color: var(--primary);
+        }
+        
+        .back-to-top {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+        }
+        
+        .crop-image {
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .pricing-highlight {
+            border: 2px solid var(--accent);
+        }
+        
+        .notification-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1050;
+        }
+        
+        .language-selector {
+            position: fixed;
+            top: 95px;
+            right: 15px;
+            z-index: 1000;
+            background: white;
+            padding: 5px;
+            border-radius: 5px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .api-status {
+            font-size: 0.8rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+        
+        .status-connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 768px) {
+            .hero-section {
+                padding: 50px 0;
+            }
+            
+            .display-4 {
+                font-size: 2.2rem;
+            }
+            
+            body {
+                padding-top: 80px;
+            }
+            
+            .fixed-navbar {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Spinner -->
+    <div class="loading-spinner" id="loadingSpinner">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast notification-toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-autohide="true" data-bs-delay="3000">
+        <div class="toast-header">
+            <i class="fas fa-bell text-primary me-2"></i>
+            <strong class="me-auto">Krishi Mitra</strong>
+            <small>Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toastMessage">
+            Welcome to Krishi Mitra!
+        </div>
+    </div>
+
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <select class="form-select form-select-sm" id="languageSelect">
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="ta">Tamil</option>
+            <option value="te">Telugu</option>
+            <option value="bn">Bengali</option>
+        </select>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-seedling me-2"></i>Krishi Mitra
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-home me-1"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#features"><i class="fas fa-star me-1"></i> Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#recommendation"><i class="fas fa-calculator me-1"></i> Recommendation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#market"><i class="fas fa-chart-line me-1"></i> Market</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#community"><i class="fas fa-users me-1"></i> Community</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#resources"><i class="fas fa-book me-1"></i> Resources</a>
+                    </li>
+                    <li class="nav-item position-relative">
+                        <a class="nav-link" href="#" id="notificationBtn">
+                            <i class="fas fa-bell me-1"></i>
+                            <span class="notification-badge">3</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">
+                            <i class="fas fa-user me-1"></i> Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-content">
+            <h1 class="display-4 fw-bold mb-4">AI-Powered Crop Recommendations for Indian Farmers</h1>
+            <p class="lead mb-4">Maximize your yield and profits with intelligent data-driven insights</p>
+            <a href="#recommendation" class="btn btn-lg btn-success px-4 py-3">
+                <i class="fas fa-leaf me-2"></i>Get Personalized Recommendations
+            </a>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-4">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-3 col-6">
+                    <div class="card text-center py-3">
+                        <div class="card-body">
+                            <i class="fas fa-users fa-2x text-primary mb-2"></i>
+                            <h3 class="mb-0">15,000+</h3>
+                            <p class="mb-0">Farmers Connected</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center py-3">
+                        <div class="card-body">
+                            <i class="fas fa-seedling fa-2x text-success mb-2"></i>
+                            <h3 class="mb-0">120+</h3>
+                            <p class="mb-0">Crop Varieties</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center py-3">
+                        <div class="card-body">
+                            <i class="fas fa-rupee-sign fa-2x text-warning mb-2"></i>
+                            <h3 class="mb-0">42%</h3>
+                            <p class="mb-0">Avg. Profit Increase</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="card text-center py-3">
+                        <div class="card-body">
+                            <i class="fas fa-map-marker-alt fa-2x text-danger mb-2"></i>
+                            <h3 class="mb-0">28</h3>
+                            <p class="mb-0">States Covered</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center section-title">How Krishi Mitra Helps Farmers</h2>
+            <p class="text-center mb-5">Our AI-powered platform provides comprehensive support for all your farming needs</p>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h3 class="card-title">AI-Powered Analysis</h3>
+                            <p class="card-text">Our advanced algorithms analyze soil, weather, and market data to provide the best crop recommendations.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-cloud-sun-rain"></i>
+                            </div>
+                            <h3 class="card-title">Weather Integration</h3>
+                            <p class="card-text">Get accurate weather forecasts and alerts to protect your crops and plan your activities.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="card-title">Market Insights</h3>
+                            <p class="card-text">Access real-time market prices, demand trends, and connect directly with buyers.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <h3 class="card-title">Water Management</h3>
+                            <p class="card-text">Optimize your water usage with smart irrigation recommendations based on crop needs and weather.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-book"></i>
+                            </div>
+                            <h3 class="card-title">Learning Resources</h3>
+                            <p class="card-text">Access detailed guides on crop management, pest control, and modern farming techniques.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 text-center">
+                        <div class="card-body">
+                            <div class="feature-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h3 class="card-title">Community Support</h3>
+                            <p class="card-text">Connect with other farmers, experts, and agricultural scientists to share knowledge.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommendation Form Section -->
+    <section id="recommendation" class="py-5">
+        <div class="container">
+            <h2 class="text-center section-title">Get Personalized Crop Recommendations</h2>
+            <p class="text-center mb-5">Fill in your farm details to receive AI-powered crop suggestions</p>
+            
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="mb-0"><i class="fas fa-info-circle me-2"></i>Farm Information</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="cropForm">
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="location" class="form-label">Location</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="location" placeholder="Enter your district">
+                                            <button class="btn btn-outline-secondary" type="button" id="detectLocation">
+                                                <i class="fas fa-map-marker-alt"></i> Detect
+                                            </button>
+                                        </div>
+                                        <div id="map" class="mt-2"></div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="soilType" class="form-label">Soil Type</label>
+                                        <select class="form-select" id="soilType">
+                                            <option value="">Select soil type</option>
+                                            <option value="sandy">Sandy</option>
+                                            <option value="clay">Clay</option>
+                                            <option value="loamy">Loamy</option>
+                                            <option value="black">Black Cotton</option>
+                                            <option value="red">Red</option>
+                                            <option value="laterite">Laterite</option>
+                                        </select>
+                                        
+                                        <label for="soilPh" class="form-label mt-3">Soil pH Level</label>
+                                        <input type="range" class="form-range" min="4" max="9" step="0.1" id="soilPh">
+                                        <div class="d-flex justify-content-between">
+                                            <small>Acidic (4.0)</small>
+                                            <small>Neutral (6.5)</small>
+                                            <small>Alkaline (9.0)</small>
+                                        </div>
+                                        <div class="text-center" id="phValue">pH: 6.5</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="landSize" class="form-label">Land Size</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="landSize" placeholder="Enter land size">
+                                            <select class="form-select" id="landUnit">
+                                                <option value="acre">Acre</option>
+                                                <option value="hectare">Hectare</option>
+                                                <option value="bigha">Bigha</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="season" class="form-label">Current Season</label>
+                                        <select class="form-select" id="season">
+                                            <option value="">Select season</option>
+                                            <option value="kharif">Kharif (June - October)</option>
+                                            <option value="rabi">Rabi (November - April)</option>
+                                            <option value="zaid">Zaid (March - June)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="water" class="form-label">Water Availability</label>
+                                        <select class="form-select" id="water">
+                                            <option value="">Select water availability</option>
+                                            <option value="low">Low (Rainfed)</option>
+                                            <option value="medium">Medium (Limited Irrigation)</option>
+                                            <option value="high">High (Good Irrigation)</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="budget" class="form-label">Budget (per acre)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₹</span>
+                                            <input type="number" class="form-control" id="budget" placeholder="Enter your budget">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label">Previous Crops (if any)</label>
+                                    <div class="d-flex flex-wrap">
+                                        <div class="form-check me-3 mb-2">
+                                            <input class="form-check-input" type="checkbox" value="wheat" id="prevWheat">
+                                            <label class="form-check-label" for="prevWheat">Wheat</label>
+                                        </div>
+                                        <div class="form-check me-3 mb-2">
+                                            <input class="form-check-input" type="checkbox" value="rice" id="prevRice">
+                                            <label class="form-check-label" for="prevRice">Rice</label>
+                                        </div>
+                                        <div class="form-check me-3 mb-2">
+                                            <input class="form-check-input" type="checkbox" value="sugarcane" id="prevSugarcane">
+                                            <label class="form-check-label" for="prevSugarcane">Sugarcane</label>
+                                        </div>
+                                        <div class="form-check me-3 mb-2">
+                                            <input class="form-check-input" type="checkbox" value="cotton" id="prevCotton">
+                                            <label class="form-check-label" for="prevCotton">Cotton</label>
+                                        </div>
+                                        <div class="form-check me-3 mb-2">
+                                            <input class="form-check-input" type="checkbox" value="pulses" id="prevPulses">
+                                            <label class="form-check-label" for="prevPulses">Pulses</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="voiceInput" class="form-label">Voice Input</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="voiceInput" placeholder="Click microphone to use voice input">
+                                        <button class="btn btn-outline-secondary voice-btn" type="button" id="voiceBtn">
+                                            <i class="fas fa-microphone"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-center mt-4">
+                                    <button type="submit" class="btn btn-success btn-lg px-5 py-3">
+                                        <i class="fas fa-calculator me-2"></i>Generate Recommendation
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <!-- Weather Information Card -->
+                    <div class="card weather-card">
+                        <div class="card-body text-center">
+                            <h4 class="card-title"><i class="fas fa-cloud-sun me-2"></i>Weather Forecast
+                                <span class="api-status status-connected" id="weatherStatus">Live</span>
+                            </h4>
+                            <div class="display-4" id="currentTemp">28°C</div>
+                            <p class="mb-1" id="weatherCondition">Partly Cloudy</p>
+                            <p class="mb-3" id="weatherLocation">New Delhi, India</p>
+                            
+                            <div class="row">
+                                <div class="col-4">
+                                    <i class="fas fa-tint"></i>
+                                    <p>Humidity</p>
+                                    <h5 id="humidity">42%</h5>
+                                </div>
+                                <div class="col-4">
+                                    <i class="fas fa-wind"></i>
+                                    <p>Wind</p>
+                                    <h5 id="windSpeed">12 km/h</h5>
+                                </div>
+                                <div class="col-4">
+                                    <i class="fas fa-cloud-rain"></i>
+                                    <p>Rain</p>
+                                    <h5 id="rainProbability">10%</h5>
+                                </div>
+                            </div>
+                            
+                            <hr>
+                            
+                            <h5>5-Day Forecast</h5>
+                            <div class="d-flex justify-content-between" id="weatherForecast">
+                                <div>
+                                    <p>Mon</p>
+                                    <i class="fas fa-sun"></i>
+                                    <p>30°C</p>
+                                </div>
+                                <div>
+                                    <p>Tue</p>
+                                    <i class="fas fa-cloud"></i>
+                                    <p>28°C</p>
+                                </div>
+                                <div>
+                                    <p>Wed</p>
+                                    <i class="fas fa-cloud-rain"></i>
+                                    <p>26°C</p>
+                                </div>
+                                <div>
+                                    <p>Thu</p>
+                                    <i class="fas fa-sun"></i>
+                                    <p>29°C</p>
+                                </div>
+                                <div>
+                                    <p>Fri</p>
+                                    <i class="fas fa-sun"></i>
+                                    <p>31°C</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Market Trends Card -->
+                    <div class="card mt-4">
+                        <div class="card-header">
+                            <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i>Market Trends</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="market-trend p-3 mb-3">
+                                <h5>Wheat</h5>
+                                <div class="d-flex justify-content-between">
+                                    <span>₹2,250/quintal</span>
+                                    <span class="text-success"><i class="fas fa-arrow-up"></i> 5.2%</span>
+                                </div>
+                            </div>
+                            <div class="market-trend p-3 mb-3">
+                                <h5>Rice</h5>
+                                <div class="d-flex justify-content-between">
+                                    <span>₹3,100/quintal</span>
+                                    <span class="text-danger"><i class="fas fa-arrow-down"></i> 2.1%</span>
+                                </div>
+                            </div>
+                            <div class="market-trend p-3">
+                                <h5>Tomato</h5>
+                                <div class="d-flex justify-content-between">
+                                    <span>₹1,800/quintal</span>
+                                    <span class="text-success"><i class="fas fa-arrow-up"></i> 12.7%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Results Section (Initially Hidden) -->
+            <div id="resultsSection" class="mt-5" style="display: none;">
+                <h3 class="text-center mb-4">Recommended Crops for Your Farm</h3>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <div class="card crop-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="card-title mb-0">Wheat</h4>
+                                    <span class="profit-badge">₹42,500 profit/acre</span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <span class="recommendation-tag"><i class="fas fa-check-circle me-1"></i>Highly Recommended</span>
+                                    <span class="recommendation-tag"><i class="fas fa-leaf me-1"></i>Best Match: 92%</span>
+                                </div>
+                                
+                                <h6 class="text-muted">Growing Details:</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Growing Time
+                                        <span class="badge bg-primary rounded-pill">120 days</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Water Requirement
+                                        <span class="badge bg-info rounded-pill">Medium</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Harvesting Month
+                                        <span class="badge bg-success rounded-pill">March-April</span>
+                                    </li>
+                                </ul>
+                                
+                                <div class="mt-3">
+                                    <h6>Fertilizer Recommendation:</h6>
+                                    <p>Nitrogen: 50kg/acre, Phosphorus: 25kg/acre, Potassium: 20kg/acre</p>
+                                    
+                                    <h6>Optimal Sowing Period:</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar" role="progressbar" style="width: 30%">Nov</div>
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 40%">Dec</div>
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 30%">Jan</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white d-flex justify-content-between">
+                                <button class="btn btn-outline-success">
+                                    <i class="fas fa-download me-2"></i>Guide
+                                </button>
+                                <button class="btn btn-success">
+                                    <i class="fas fa-shopping-cart me-2"></i>Buy Seeds
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card crop-card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h4 class="card-title mb-0">Mustard</h4>
+                                    <span class="profit-badge">₹38,000 profit/acre</span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <span class="recommendation-tag"><i class="fas fa-check-circle me-1"></i>Recommended</span>
+                                    <span class="recommendation-tag"><i class="fas fa-leaf me-1"></i>Good Match: 85%</span>
+                                </div>
+                                
+                                <h6 class="text-muted">Growing Details:</h6>
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Growing Time
+                                        <span class="badge bg-primary rounded-pill">110 days</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Water Requirement
+                                        <span class="badge bg-info rounded-pill">Low</span>
+                                    </li>
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        Harvesting Month
+                                        <span class="badge bg-success rounded-pill">February-March</span>
+                                    </li>
+                                </ul>
+                                
+                                <div class="mt-3">
+                                    <h6>Fertilizer Recommendation:</h6>
+                                    <p>Nitrogen: 40kg/acre, Phosphorus: 20kg/acre, Potassium: 15kg/acre</p>
+                                    
+                                    <h6>Optimal Sowing Period:</h6>
+                                    <div class="progress mb-2">
+                                        <div class="progress-bar" role="progressbar" style="width: 25%">Oct</div>
+                                        <div class="progress-bar bg-success" role="progressbar" style="width: 50%">Nov</div>
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 25%">Dec</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white d-flex justify-content-between">
+                                <button class="btn btn-outline-success">
+                                    <i class="fas fa-download me-2"></i>Guide
+                                </button>
+                                <button class="btn btn-success">
+                                    <i class="fas fa-shopping-cart me-2"></i>Buy Seeds
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-info-circle me-2"></i>Additional Recommendations</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Rotation Crops:</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item">Pulses (Chickpea, Lentil)</li>
+                                    <li class="list-group-item">Oilseeds (Sunflower, Groundnut)</li>
+                                    <li class="list-group-item">Vegetables (Potato, Onion)</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>Intercropping Options:</h5>
+                                <ul class="list-group">
+                                    <li class="list-group-item">Wheat + Mustard</li>
+                                    <li class="list-group-item">Wheat + Chickpea</li>
+                                    <li class="list-group-item">Wheat + Lentil</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4 class="mb-0"><i class="fas fa-chart-line me-2"></i>Market Information</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Crop</th>
+                                        <th>Current Market Price (₹/quintal)</th>
+                                        <th>Demand Level</th>
+                                        <th>Nearest Mandi</th>
+                                        <th>Price Trend</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Wheat</td>
+                                        <td>2,250</td>
+                                        <td><span class="badge bg-success">High</span></td>
+                                        <td>Delhi Mandi (15km)</td>
+                                        <td><span class="text-success"><i class="fas fa-arrow-up"></i> 5.2%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mustard</td>
+                                        <td>5,400</td>
+                                        <td><span class="badge bg-warning">Medium</span></td>
+                                        <td>Ghaziabad Mandi (22km)</td>
+                                        <td><span class="text-success"><i class="fas fa-arrow-up"></i> 3.7%</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary me-2">
+                        <i class="fas fa-share-alt me-2"></i>Share Report
+                    </button>
+                    <button class="btn btn-success me-2">
+                        <i class="fas fa-file-pdf me-2"></i>Download PDF
+                    </button>
+                    <button class="btn btn-success">
+                        <i class="fab fa-whatsapp me-2"></i>Send via WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Community Section -->
+    <section id="community" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center section-title">Farmer Community</h2>
+            <p class="text-center mb-5">Connect with other farmers, ask questions and share experiences</p>
+            
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h4 class="mb-0"><i class="fas fa-question-circle me-2"></i>Recent Questions</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex mb-3">
+                                <div class="community-avatar me-3">R</div>
+                                <div class="flex-grow-1">
+                                    <h5>How to control wheat rust?</h5>
+                                    <p class="mb-1">Posted by: Rajesh from Punjab</p>
+                                    <div class="text-muted small"><i class="fas fa-comments me-1"></i>3 answers · 2 days ago</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex mb-3">
+                                <div class="community-avatar me-3">S</div>
+                                <div class="flex-grow-1">
+                                    <h5>Best sugarcane variety for black soil?</h5>
+                                    <p class="mb-1">Posted by: Suresh from Maharashtra</p>
+                                    <div class="text-muted small"><i class="fas fa-comments me-1"></i>5 answers · 1 day ago</div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex">
+                                <div class="community-avatar me-3">P</div>
+                                <div class="flex-grow-1">
+                                    <h5>Organic alternatives to chemical fertilizers?</h5>
+                                    <p class="mb-1">Posted by: Priya from Karnataka</p>
+                                    <div class="text-muted small"><i class="fas fa-comments me-1"></i>8 answers · 5 hours ago</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <button class="btn btn-outline-success w-100">View All Questions</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Ask a Question</h4>
+                        </div>
+                        <div class="card-body">
+                            <form>
+                                <div class="mb-3">
+                                    <label for="questionTitle" class="form-label">Question Title</label>
+                                    <input type="text" class="form-control" id="questionTitle" placeholder="What's your question?">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="questionDetail" class="form-label">Details</label>
+                                    <textarea class="form-control" id="questionDetail" rows="3" placeholder="Provide more details..."></textarea>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="questionCategory" class="form-label">Category</label>
+                                    <select class="form-select" id="questionCategory">
+                                        <option value="">Select category</option>
+                                        <option value="pest">Pest Control</option>
+                                        <option value="soil">Soil Health</option>
+                                        <option value="irrigation">Irrigation</option>
+                                        <option value="crops">Crop Selection</option>
+                                        <option value="organic">Organic Farming</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Post Question</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h4 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Upcoming Events</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Organic Farming Workshop</h5>
+                                    <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Pune, Maharashtra</p>
+                                    <p class="text-muted"><i class="fas fa-clock me-2"></i>15 Oct 2023, 10:00 AM</p>
+                                    <button class="btn btn-sm btn-outline-success">Register</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Modern Irrigation Techniques</h5>
+                                    <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Hyderabad, Telangana</p>
+                                    <p class="text-muted"><i class="fas fa-clock me-2"></i>22 Oct 2023, 11:00 AM</p>
+                                    <button class="btn btn-sm btn-outline-success">Register</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5>Soil Health Management</h5>
+                                    <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i>Bangalore, Karnataka</p>
+                                    <p class="text-muted"><i class="fas fa-clock me-2"></i>30 Oct 2023, 9:30 AM</p>
+                                    <button class="btn btn-sm btn-outline-success">Register</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Resources Section -->
+    <section id="resources" class="py-5">
+        <div class="container">
+            <h2 class="text-center section-title">Learning Resources</h2>
+            <p class="text-center mb-5">Expand your knowledge with our farming guides and tutorials</p>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1625246335525-8f3c33d0-7d8d-4b5e-8b0a-5e5b5e5b5e5b?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" class="card-img-top crop-image" alt="Soil Health">
+                        <div class="card-body">
+                            <h5 class="card-title">Soil Health Management</h5>
+                            <p class="card-text">Learn how to maintain and improve your soil health for better crop yield.</p>
+                            <a href="#" class="btn btn-outline-success">Read Guide</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1590172205846-793b31c043e6?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" class="card-img-top crop-image" alt="Pest Control">
+                        <div class="card-body">
+                            <h5 class="card-title">Organic Pest Control</h5>
+                            <p class="card-text">Natural methods to protect your crops from pests without chemicals.</p>
+                            <a href="#" class="btn btn-outline-success">Read Guide</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <img src="https://images.unsplash.com/photo-1595248842562-e0f2980ed6d4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80" class="card-img-top crop-image" alt="Water Management">
+                        <div class="card-body">
+                            <h5 class="card-title">Efficient Water Management</h5>
+                            <p class="card-text">Techniques to optimize water usage and reduce wastage in farming.</p>
+                            <a href="#" class="btn btn-outline-success">Read Guide</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-4">
+                <a href="#" class="btn btn-success">View All Resources</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center section-title">Subscription Plans</h2>
+            <p class="text-center mb-5">Choose the plan that works best for your farming needs</p>
+            
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card pricing-card text-center h-100">
+                        <div class="card-header py-4">
+                            <h4 class="my-0 fw-normal">Basic</h4>
+                        </div>
+                        <div class="card-body">
+                            <h1 class="card-title pricing-card-title">₹0</h1>
+                            <p class="text-muted">Free Forever</p>
+                            <ul class="list-unstyled mt-3 mb-4">
+                                <li><i class="fas fa-check text-success me-2"></i>Basic crop recommendations</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Weather forecasts</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Market price updates</li>
+                                <li><i class="fas fa-times text-danger me-2"></i>Personalized advisory</li>
+                                <li><i class="fas fa-times text-danger me-2"></i>Premium resources</li>
+                            </ul>
+                            <button type="button" class="btn btn-lg btn-outline-success w-100">Get Started</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card pricing-card text-center h-100 pricing-highlight">
+                        <div class="card-header py-4 bg-success text-white">
+                            <h4 class="my-0 fw-normal">Premium</h4>
+                        </div>
+                        <div class="card-body">
+                            <h1 class="card-title pricing-card-title">₹499</h1>
+                            <p class="text-muted">per month</p>
+                            <ul class="list-unstyled mt-3 mb-4">
+                                <li><i class="fas fa-check text-success me-2"></i>Advanced AI recommendations</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Detailed soil analysis</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Real-time market insights</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Personalized advisory</li>
+                                <li><i class="fas fa-check text-success me-2"></i>All premium resources</li>
+                            </ul>
+                            <button type="button" class="btn btn-lg btn-success w-100">Get Premium</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card pricing-card text-center h-100">
+                        <div class="card-header py-4">
+                            <h4 class="my-0 fw-normal">Enterprise</h4>
+                        </div>
+                        <div class="card-body">
+                            <h1 class="card-title pricing-card-title">₹3,999</h1>
+                            <p class="text-muted">per year</p>
+                            <ul class="list-unstyled mt-3 mb-4">
+                                <li><i class="fas fa-check text-success me-2"></i>Everything in Premium</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Multi-field management</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Priority support</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Custom reports</li>
+                                <li><i class="fas fa-check text-success me-2"></i>Direct expert access</li>
+                            </ul>
+                            <button type="button" class="btn btn-lg btn-outline-success w-100">Contact Sales</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="text-center text-lg-start">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <h5 class="text-uppercase">Krishi Mitra</h5>
+                    <p>Empowering farmers with AI-driven insights for better crop selection and increased profitability.</p>
+                    <div class="mt-3">
+                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-youtube fa-lg"></i></a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+                    <h5 class="text-uppercase">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white"><i class="fas fa-angle-right me-2"></i>Home</a></li>
+                        <li><a href="#features" class="text-white"><i class="fas fa-angle-right me-2"></i>Features</a></li>
+                        <li><a href="#recommendation" class="text-white"><i class="fas fa-angle-right me-2"></i>Recommendation</a></li>
+                        <li><a href="#market" class="text-white"><i class="fas fa-angle-right me-2"></i>Market Trends</a></li>
+                        <li><a href="#community" class="text-white"><i class="fas fa-angle-right me-2"></i>Community</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-4 col-md-12 mb-4 mb-md-0">
+                    <h5 class="text-uppercase">Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-envelope me-2"></i> support@krishimitra.com</li>
+                        <li><i class="fas fa-phone me-2"></i> +91 1800-123-4567</li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i> New Delhi, India</li>
+                    </ul>
+                    
+                    <div class="mt-3">
+                        <img src="https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo-shadow.png" height="30" class="me-2" alt="Bootstrap">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Python-logo-notext.svg/1869px-Python-logo-notext.svg.png" height="30" class="me-2" alt="Python">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/HTML5_Badge.svg/800px-HTML5_Badge.svg.png" height="30" alt="HTML5">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center p-3 mt-4" style="background-color: rgba(0, 0, 0, 0.2);">
+            © 2023 Krishi Mitra. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loginModalLabel">Login to Krishi Mitra</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email address or Phone number</label>
+                            <input type="text" class="form-control" id="loginEmail" placeholder="Enter your email or phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password">
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100">Login</button>
+                    </form>
+                    <div class="text-center mt-3">
+                        <a href="#" class="text-decoration-none">Forgot password?</a>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <p>Don't have an account? <a href="#" class="text-decoration-none">Sign up now</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script>
+        // API Keys and Endpoints
+        const WEATHER_API_KEY = '72dbab2b809e497296e153536252008';
+        const WEATHER_API_URL = 'https://api.weatherapi.com/v1/forecast.json';
+        const SOIL_API_URL = 'https://rest.isric.org/soilgrids/v2.0/properties/query';
+        
+        // Initialize variables
+        let map;
+        let currentLocation = { lat: 28.6139, lng: 77.2090, name: 'New Delhi, India' };
+        
+        // Form submission handler
+        document.getElementById('cropForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading spinner
+            document.getElementById('loadingSpinner').style.display = 'flex';
+            
+            // Simulate API call delay
+            setTimeout(function() {
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').style.display = 'none';
+                
+                // Show results section
+                document.getElementById('resultsSection').style.display = 'block';
+                
+                // Show success notification
+                showNotification('Crop recommendations generated successfully!');
+                
+                // Scroll to results
+                document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+            }, 2000);
+        });
+        
+        // Voice input functionality
+        document.getElementById('voiceBtn').addEventListener('click', function() {
+            showNotification('Voice input activated! Speak now...');
+            // In a real implementation, we would use the Web Speech API here
+            
+            // Simulate voice input after a delay
+            setTimeout(function() {
+                document.getElementById('voiceInput').value = "I have 5 acres of black soil with good water availability. I want to grow crops in Rabi season.";
+                showNotification('Voice input processed successfully!');
+            }, 1500);
+        });
+        
+        // Location detection
+        document.getElementById('detectLocation').addEventListener('click', function() {
+            showNotification('Detecting your location...');
+            
+            // Try to get the user's location using the browser's geolocation API
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        
+                        // Use OpenStreetMap Nominatim API for reverse geocoding
+                        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const locationName = data.display_name.split(',')[0] + ', ' + data.address.state;
+                                currentLocation = { lat, lng, name: locationName };
+                                
+                                document.getElementById('location').value = locationName;
+                                
+                                // Update the map
+                                updateMap(lat, lng, locationName);
+                                
+                                // Fetch weather for this location
+                                fetchWeatherData(lat, lng);
+                                
+                                // Fetch soil data for this location
+                                fetchSoilData(lat, lng);
+                                
+                                showNotification(`Location detected: ${locationName}`);
+                            })
+                            .catch(error => {
+                                console.error('Error with reverse geocoding:', error);
+                                showNotification('Could not determine location name. Using coordinates only.');
+                                currentLocation = { lat, lng, name: `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
+                                updateMap(lat, lng, 'Your Location');
+                                fetchWeatherData(lat, lng);
+                                fetchSoilData(lat, lng);
+                            });
+                    },
+                    function(error) {
+                        console.error('Error getting location:', error);
+                        showNotification('Could not access your location. Using default location (New Delhi).');
+                        updateMap(currentLocation.lat, currentLocation.lng, currentLocation.name);
+                        fetchWeatherData(currentLocation.lat, currentLocation.lng);
+                        fetchSoilData(currentLocation.lat, currentLocation.lng);
+                    }
+                );
+            } else {
+                showNotification('Geolocation is not supported by this browser. Using default location.');
+                updateMap(currentLocation.lat, currentLocation.lng, currentLocation.name);
+                fetchWeatherData(currentLocation.lat, currentLocation.lng);
+                fetchSoilData(currentLocation.lat, currentLocation.lng);
+            }
+        });
+        
+        // Update map with the given coordinates
+        function updateMap(lat, lng, locationName) {
+            if (!map) {
+                map = L.map('map').setView([lat, lng], 10);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+            } else {
+                map.setView([lat, lng], 10);
+                map.eachLayer(layer => {
+                    if (layer instanceof L.Marker) {
+                        map.removeLayer(layer);
+                    }
+                });
+            }
+            
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup(locationName)
+                .openPopup();
+        }
+        
+        // Fetch weather data from API
+        async function fetchWeatherData(lat, lng) {
+            try {
+                // Using WeatherAPI (as per the provided key)
+                const response = await fetch(`${WEATHER_API_URL}?key=${WEATHER_API_KEY}&q=${lat},${lng}&days=5`);
+                
+                if (!response.ok) {
+                    throw new Error('Weather API response was not ok');
+                }
+                
+                const data = await response.json();
+                
+                // Update weather card with live data
+                document.getElementById('currentTemp').textContent = `${Math.round(data.current.temp_c)}°C`;
+                document.getElementById('weatherCondition').textContent = data.current.condition.text;
+                document.getElementById('weatherLocation').textContent = `${data.location.name}, ${data.location.country}`;
+                document.getElementById('humidity').textContent = `${data.current.humidity}%`;
+                document.getElementById('windSpeed').textContent = `${data.current.wind_kph} km/h`;
+                document.getElementById('rainProbability').textContent = `${data.forecast.forecastday[0].day.daily_chance_of_rain}%`;
+                
+                // Update 5-day forecast
+                const forecastContainer = document.getElementById('weatherForecast');
+                forecastContainer.innerHTML = '';
+                
+                data.forecast.forecastday.forEach(day => {
+                    const date = new Date(day.date);
+                    const dayName = date.toLocaleDateString('en', { weekday: 'short' });
+                    
+                    const forecastDay = document.createElement('div');
+                    forecastDay.innerHTML = `
+                        <p>${dayName}</p>
+                        <img src="${day.day.condition.icon}" alt="${day.day.condition.text}" style="width: 30px; height: 30px;">
+                        <p>${Math.round(day.day.maxtemp_c)}°C</p>
+                    `;
+                    
+                    forecastContainer.appendChild(forecastDay);
+                });
+                
+                // Update API status
+                document.getElementById('weatherStatus').textContent = 'Live';
+                document.getElementById('weatherStatus').className = 'api-status status-connected';
+                
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+                showNotification('Failed to fetch weather data. Using sample data.');
+                
+                // Update API status to show error
+                document.getElementById('weatherStatus').textContent = 'Offline';
+                document.getElementById('weatherStatus').className = 'api-status status-disconnected';
+            }
+        }
+        
+        // Fetch soil data from SoilGrids API
+        async function fetchSoilData(lat, lng) {
+            try {
+                // SoilGrids API request
+                const response = await fetch(`${SOIL_API_URL}?lon=${lng}&lat=${lat}&property=phh2o&depth=0-5cm&value=mean`);
+                
+                if (!response.ok) {
+                    throw new Error('Soil API response was not ok');
+                }
+                
+                const data = await response.json();
+                
+                // Extract pH value from response
+                if (data.properties && data.properties.layers && data.properties.layers.length > 0) {
+                    const pHValue = data.properties.layers[0].depths[0].values.mean / 10; // Convert from 0.1 pH units
+                    
+                    // Update pH slider and value display
+                    document.getElementById('soilPh').value = pHValue;
+                    document.getElementById('phValue').textContent = `pH: ${pHValue.toFixed(1)}`;
+                    
+                    // Change color based on pH value
+                    if (pHValue < 5.5) {
+                        document.getElementById('phValue').className = 'text-center text-danger';
+                    } else if (pHValue > 7.5) {
+                        document.getElementById('phValue').className = 'text-center text-warning';
+                    } else {
+                        document.getElementById('phValue').className = 'text-center text-success';
+                    }
+                    
+                    // Suggest soil type based on pH
+                    let soilType = 'loamy';
+                    if (pHValue < 5.5) soilType = 'sandy';
+                    if (pHValue > 7.5) soilType = 'clay';
+                    
+                    document.getElementById('soilType').value = soilType;
+                    showNotification(`Soil data loaded: pH ${pHValue.toFixed(1)}, suggested soil type: ${soilType}`);
+                }
+                
+            } catch (error) {
+                console.error('Error fetching soil data:', error);
+                showNotification('Could not fetch soil data. Using manual input.');
+            }
+        }
+        
+        // Soil pH value display
+        const soilPh = document.getElementById('soilPh');
+        const phValue = document.getElementById('phValue');
+        
+        soilPh.addEventListener('input', function() {
+            phValue.textContent = `pH: ${this.value}`;
+            
+            // Change color based on pH value
+            if (this.value < 5.5) {
+                phValue.className = 'text-center text-danger';
+            } else if (this.value > 7.5) {
+                phValue.className = 'text-center text-warning';
+            } else {
+                phValue.className = 'text-center text-success';
+            }
+        });
+        
+        // Back to top button
+        const backToTopButton = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+        
+        backToTopButton.addEventListener('click', function() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        // Language selector
+        document.getElementById('languageSelect').addEventListener('change', function() {
+            const language = this.value;
+            showNotification(`Language changed to ${this.options[this.selectedIndex].text}`);
+            
+            // In a real implementation, we would translate the page content
+            // For now, we'll just show a notification
+        });
+        
+        // Notification system
+        function showNotification(message) {
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            
+            const toast = new bootstrap.Toast(document.querySelector('.toast'));
+            toast.show();
+        }
+        
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+        
+        // Initialize tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
+        // Show welcome notification on page load
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                showNotification('Welcome to Krishi Mitra! Get personalized crop recommendations for your farm.');
+                
+                // Initialize map with default location
+                updateMap(currentLocation.lat, currentLocation.lng, currentLocation.name);
+                
+                // Fetch weather data for default location
+                fetchWeatherData(currentLocation.lat, currentLocation.lng);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
